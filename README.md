@@ -1,2 +1,2 @@
-# NPP_sheet
-Format of N++ binary files and server queries
+
+![N++ Query and Data Format Cheatsheet](data_format.png)
