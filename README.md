@@ -1,2 +1,2 @@
 
-![N++ Query and Data Format Cheatsheet](data_format.png)
+![N++ Query and Data Format Cheatsheet](npp_sheet.png)
