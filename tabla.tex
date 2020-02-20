@@ -1,0 +1,470 @@
+\documentclass{article}
+\usepackage[svgnames,dvipsnames,table]{xcolor}
+\usepackage[paperwidth=40cm, paperheight=60cm, top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
+\usepackage{array}
+\usepackage{environ}
+\usepackage{tikz}
+\usepackage{multirow}
+\usepackage{mathpazo}
+\usetikzlibrary{calc}
+
+\pagestyle{empty}
+
+\newsavebox{\tablebox}
+\definecolor{1}{named}{ForestGreen} % queries
+\definecolor{2}{named}{RoyalBlue}   % data
+\definecolor{3}{named}{OrangeRed}   % notes
+
+\NewEnviron{tabla}[2]{%
+  \addtolength{\extrarowheight}{0.5ex}%
+  \rowcolors{2}{#1!40}{#1!20}%
+  \sffamily%
+  \newcommand{\main}[2]{%
+    \multicolumn{##2}{c}{%
+      \cellcolor{3}\color{white}\bfseries##1}}
+  \newcommand{\tit}[2]{%
+    \multicolumn{##2}{c}{%
+      \cellcolor{#1}\color{white}\bfseries##1}}
+  \newcommand{\header}[1]{%
+    \multicolumn{1}{c}{%
+      \cellcolor{white}\color{#1}\bfseries##1}}
+  \newcommand{\note}[2]{%
+    \multicolumn{1}{c}{%
+      \cellcolor{#1}\color{white}\bfseries\parbox[t]{##1cm}{##2}}}
+  \savebox{\tablebox}{%
+    \begin{tabular}{#2}%
+      \BODY%
+    \end{tabular}}%
+  \begin{tikzpicture}
+    \clip[rounded corners=1ex] (0,-\dp\tablebox) -- (\wd\tablebox,-\dp\tablebox) -- (\wd\tablebox,\ht\tablebox) -- (0,\ht\tablebox) -- cycle;
+    \node at (0,-\dp\tablebox) [anchor=south west,inner sep=0pt]{\usebox{\tablebox}};
+    \draw[#1,very thick,rounded corners=1ex] (0,-\dp\tablebox) -- (\wd\tablebox,-\dp\tablebox) -- (\wd\tablebox,\ht\tablebox) -- (0,\ht\tablebox) -- cycle;
+  \end{tikzpicture}
+}
+
+\tikzstyle{vecArrow} = [
+                        thick,
+                        decoration={markings,mark=at position 1 with {\arrow[semithick]{open triangle 60}}},
+                        double distance=1.4pt,
+                        shorten >= 5.5pt,
+                        preaction = {decorate},
+                        postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}
+                      ]
+\tikzstyle{innerWhite} = [
+                          semithick,
+                          white,
+                          line width=1.4pt,
+                          shorten >= 4.5pt
+                        ]
+
+\def\imagescale{0.45}
+
+\tikzset{
+  queries/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{1}{cl}
+          \tit{QUERIES}{2}\\
+          \header{Name} & \header{Description} \\
+          \textbf{get\_scores} & Returns leaderboard data for a specific level\\
+          \textbf{get\_replay} & Returns replay data for a specific run\\
+          \textbf{query\_levels} & Returns a list of userlevels from a specific tab and page\\
+          \textbf{search/levels} & Returns a list of userlevel results for a specific search\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  parameters/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{1}{cllll}
+          \tit{PARAMETERS}{5}\\
+          \header{Name} & \header{Obligatory} & \header{Description} & \header{Values} & \header{Default}\\
+          \textbf{app\_id} & No & ? & Integer & None\\
+          \textbf{steam\_id} & Yes & Steam64ID of an active N++ player & 17-digit integer & None\\
+          \textbf{steam\_auth} & Yes & Steam token, can be left empty & Base 16 integer & None\\
+          \textbf{user\_id} & No & ID of the player in N++'s server & Integer (0$\sim$160K currently ) & None\\
+          \textbf{level\_id} & get\_scores & Self-explanatory & Integer (0$\sim$100K currently) & None\\
+          \textbf{replay\_id} & get\_replay & Self-explanatory & Integer (0$\sim$3M currently) & None\\
+          \textbf{player\_id} & No & ? & Integer & None\\
+          \textbf{qt} & No & On \textit{get\_scores}, leaderboard tab & 0 (global), 1 (around), 2 (friends) & 0\\
+          && On \textit{query\_levels}, map tab & Integer, 7 to 31 (see below) & 0\\
+          \textbf{mode} & search & Playing mode & 0 (solo), 1 (coop), 2 (race) & 0\\
+          \textbf{page} & No & Page of results from query\_levels & Integer (0$\sim$100) & 0\\
+          \textbf{search} & search & Text query to search & String of text & None\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  categories/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{1}{rl}
+          \tit{CATEGORIES (qt)}{2}\\
+          \header{ID} & \header{Category}\\
+          \textbf{7} & Best\\
+          \textbf{8} & Featured\\
+          \textbf{9} & Top Weekly\\
+          \textbf{10} & Newest\\
+          \textbf{11} & Hardest\\
+          \textbf{12} & Made by me, sorted by ++'s\\
+          \textbf{13} & Made by me, sorted by date\\
+          \textbf{14} & Favourited, sorted by date\\
+          \textbf{15} & Favourited, sorted by ++'s\\
+          \textbf{16} & ?\\
+          \textbf{17} & -\\
+          \textbf{18} & Made by friends, sorted by date\\
+          \textbf{19} & Made by friends, sorted by ++'s\\
+          \textbf{20} & -\\
+          \textbf{21} & Favourited by friends\\
+          \textbf{22} & Tracked by friends, sorted by date\\
+          \textbf{24} & Tracked by friends, sorted by rank, scored\\
+          \textbf{23} & Tracked by friends, sorted by rank\\
+          \textbf{25} & Tracked by friends, sorted by rank, not scored\\
+          \textbf{26} & Tracked by me\\
+          \textbf{27} & -\\
+          \textbf{28} & -\\
+          \textbf{29} & -\\
+          \textbf{30} & Following, sorted by date\\
+          \textbf{31} & Following, sorted by ++'s\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  query_format/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{2}{cl}
+        \main{QUERY LEVELS}{2}\\
+        \tit{HEADER (48 bytes)}{2}\\
+        \header{\# Bytes} & \header{Description}\\
+        16 & Date of db update\\
+        04 & Nº of maps\\
+        04 & Page\\
+        04 & ? (0)\\
+        04 & Category\\
+        04 & Game mode\\
+        04 & ? (1200, 5)\\
+        04 & ? (500, 25)\\
+        04 & ? (0, 5)\\
+        \tit{MAP HEADERS (44 bytes)}{2}\\
+        \header{\# Bytes} & \header{Description}\\
+        04 & Map ID\\
+        04 & User ID\\
+        16 & Author name (padded)\\
+        04 & Number of ++'s\\
+        16 & Date of publishing\\
+        \tit{MAP DATA BLOCKS}{2}\\
+        \header{\# Bytes} & \header{Description}\\
+        04 & Size of block in bytes\\
+        02 & ?\\
+        \#\# & z-lib compressed map data\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  map_format/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{2}{cl}
+        \main{MAP FILE}{2}\\
+        \tit{HEADER}{2}\\
+        \header{\# Bytes} & \header{Description}\\
+        04 & ?\\
+        04 & File length\\
+        04 & ?\\
+        04 & Game mode\\
+        22 & ?\\
+        \tit{MAP DATA}{2}\\
+        128 & Level name (padded)\\
+        \#\# & Tile data\\
+        80 & Object counts\\
+        \#\# & Object data\\
+        \tit{EACH TILE}{2}\\
+        01 & Tile ID\\
+        \tit{EACH OBJECT}{2}\\
+        01 & Object ID\\
+        01 & X coordinate\\
+        01 & Y coordinate\\
+        01 & Orientation\\
+        01 & Mode\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  replay_format/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{2}{cl}
+        \main{REPLAY FILE}{2}\\
+        \tit{REPLAY DATA}{2}\\
+        \header{\# Bytes} & \header{Description}\\
+        04 & ? (0)\\
+        04 & Replay ID\\
+        04 & Level ID\\
+        04 & User ID\\
+        \#\# & z-lib compressed demo\\
+        \tit{DEMO DATA}{2}\\
+        01 & ? (0)\\
+        04 & Length of data\\
+        04 & ? (1)\\
+        04 & Frame count\\
+        04 & Level ID\\
+        04 & Game mode\\
+        04 & ? (0)\\
+        01 & ? (1, 3)\\
+        04 & ? ($2^{31}-1$)\\
+        \#\# & Demo (1 Byte/Frame)\\
+        \tit{FRAME VALUES}{2}\\
+        \header{Bit} & \header{Description}\\
+        0 & Jump\\
+        1 & Right\\
+        2 & Left\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  attract_format/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{2}{cl}
+        \main{ATTRACT FILE}{2}\\
+        \tit{HEADER}{2}\\
+        \header{\# Bytes} & \header{Description}\\
+        04 & Length of map data\\
+        04 & Length of demo data\\
+        \tit{MAP DATA}{2}\\
+        \header{\# Bytes} & \header{Description}\\
+        04 & Level ID\\
+        04 & Game mode\\
+        04 & ? (1)\\
+        18 & ? (0)\\
+        128 & Level name (padded)\\
+        01 & 0\\
+        \#\# & Author name\\
+        01 & 0\\
+        \#\# & Map data\\
+        \tit{DEMO DATA}{2}\\
+        01 & ? (0)\\
+        04 & Length of data\\
+        04 & ? (1)\\
+        04 & Frame count\\
+        04 & Level ID\\
+        04 & Game mode\\
+        04 & ? (0)\\
+        01 & ? (1, 3)\\
+        04 & ? ($2^{31}-1$)\\
+        \#\# & Demo (1 Byte/Frame)\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  tiles/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{2}{rc}
+          \tit{TILE\hspace{2em}IDS}{2}\\
+          \header{ID} & \header{Tile}\\
+          0 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/00.png}}\\
+          1 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/01.png}}\\
+          2-5 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/02.png}}\\
+          6-9 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/06.png}}\\
+          10-13 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/0A.png}}\\
+          14-17 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/0E.png}}\\
+          18-21 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/12.png}}\\
+          22-25 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/16.png}}\\
+          26-29 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/1A.png}}\\
+          30-33 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{tiles/1E.png}}\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  objects/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{2}{rc}
+        \tit{OBJECT IDS}{2}\\
+        \header{ID} & \header{Object}\\
+        0 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/00.png}}\\
+        1 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/01.png}}\\
+        2 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/02.png}}\\
+        3 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/03.png}}\\
+        4 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/04.png}}\\
+        5 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/05.png}}\\
+        6 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/06.png}}\\
+        7 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/07.png}}\\
+        8 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/08_a.png}}\\
+        9 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/09.png}}\\
+        10 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/0A.png}}\\
+        11 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/0B.png}}\\
+        12 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/0C.png}}\\
+        13 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/0D.png}}\\
+        14 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/0E.png}}\\
+        15 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/0F.png}}\\
+        16 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/10.png}}\\
+        17 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/11.png}}\\
+        18 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/12.png}}\\
+        19 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/13.png}}\\
+        20 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/14.png}}\\
+        21 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/15.png}}\\
+        22 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/16.png}}\\
+        23 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/17.png}}\\
+        24 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/18.png}}\\
+        25 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/19.png}}\\
+        26 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/1A.png}}\\
+        27 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/1B.png}}\\
+        28 & \raisebox{-0.2\height}{\includegraphics[scale=\imagescale]{objects/1C.png}}\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  title1/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{3}{c}
+        \note{5.7}{QUERY LEVELS}\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  note1/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{3}{c}
+        \note{5.7}{$\bullet$ All integers are little endian. \\ $\bullet$ Possible values in parenthesis. \\ $\bullet$ A query is capped at 500 results.}\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  note2/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{3}{c}
+        \note{4.9}{$\bullet$ Tiles are stored left to right, up to down (23*42=966 B). \\ $\bullet$ Each object count is 2 bytes, thus there are 11 unused object counts (22 bytes). \\ $\bullet$ Objects are stored sorted by ID (see table). }\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  note3/.pic = {
+    \node at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{tabla}{3}{c}
+        \note{5.1}{Frame sample: \\ $\bullet$ Input: right + jump. \\ $\bullet$ Value: $2^1$ + $2^0$ = 3.}\\
+        \end{tabla}
+      \end{minipage}
+    };
+  },
+  arrow/.pic = {
+    \draw[right color = 3, left color = 3]
+      (10.75:1.1) -- (6.5:1) arc (6.25:120:1) [rounded corners=0.5]
+                  -- (120:0.9) [rounded corners=1]
+                  -- (130:1.1) [rounded corners=0.5]
+                  -- (120:1.3) [sharp corners]
+                  -- (120:1.2) arc (120:5.25:1.2) [rounded corners=1]
+                  -- (10.75:1.1)
+                  -- (6.5:1)
+                  -- cycle;
+  }
+}
+
+\begin{document}
+
+\scalebox{1}{
+  \begin{tikzpicture}
+    % --------------------------------- FRAME ----------------------------------
+    \draw[rounded corners = 0.25cm, line width = 0.5mm] (-15.4,5.25) rectangle (14,-31.75);
+
+    \begin{scope}
+      \draw[rounded corners = 0.25cm, line width = 0.5mm, fill=black!10!white] (-15,1.5) rectangle (-9.4,-1.5);
+      \node[scale=1.25] at (-12.2,0.75) {{\color{1}\large{\textbf{Green: Query format}}}};
+      \node[scale=1.25] at (-12.6,0) {{\color{2}\large{\textbf{Blue: Data format}}}};
+      \node[scale=1.25] at (-13.4,-0.75) {{\color{3}\large{\textbf{Red: Notes}}}};
+    \end{scope}
+
+    % -------------------------------- HEADER ----------------------------------
+    \begin{scope}[xshift=1.5cm,yshift=-2.5cm,scale=1.15]
+      % --- BOX ---
+      \draw[rounded corners = 0.25cm, line width = 0.5mm, fill=black!10!white] (-14.325,6.25) rectangle (0.45,3.75);
+
+      % --- TEXT ---
+      \node[scale=1.1,xshift=-1.9cm,yshift=-0.1cm] at (-2,5.5) {\Huge{\textbf{Query \& Data format}}};
+      \node at (-0.9,4.35) {\large{\textbf{Author: Eddy}}};
+      \node at (-1,4) {\large{\textbf{Date: Feb/2020}}};
+
+      % --- LOGO ---
+      \begin{scope}[shift={(-11.25,5)},scale=0.4]
+        %\draw[step=0.1,color=red!10!white, very thin] (-10,-10) grid (10,10);
+        %\draw[step=1,color=red!40!white, very thin] (-10,-10) grid (10,10);
+        %\draw[fill=black] (0,0) circle (0.1cm);
+        %\node[text opacity=.2] at (0,0) {\includegraphics[scale=0.8]{logo.png}};
+        \draw[line width=0.5mm] (-7.35,1.65) -- (-6.95,2.05) -- (-3.45,2.05) -- (-2.3,0.9) -- (-2.3,-2.45) -- (-2.65,-2.8) -- (-3.45,-2.8)
+          -- (-3.85,-2.45) -- (-3.85,0.5) -- (-5.6,0.5) -- (-6.25,1.175) -- (-6.35,1.175) -- (-6.45,1.075) -- (-6.45,0.975) -- (-5.8,0.3)
+          -- (-5.8,-2.45) -- (-6.2,-2.8) -- (-6.95,-2.8) -- (-7.35,-2.45) -- cycle;
+        \draw[line width=0.5mm] (-2,0.9) -- (-1.65,1.275) -- (-0.65,1.275) -- (0.025,0.6) -- (0.125,0.6) -- (0.225,0.7) -- (0.225,0.8)
+          -- (-0.45,1.45) -- (-0.45,2.45) -- (-0.1,2.825) -- (0.7,2.825) -- (1.1,2.45) -- (1.1,1.275) -- (2.25,1.275) -- (2.65,0.9)
+          -- (2.65,0.1) -- (2.25,-0.3) -- (1.1,-0.3) -- (1.1,-1.45) -- (0.7,-1.85) -- (-0.1,-1.85) -- (-0.45,-1.45) -- (-0.45,-0.3)
+          -- (-1.65,-0.3) -- (-2,0.1) -- cycle;
+          \draw[line width=0.5mm,xshift=4.925cm] (-2,0.9) -- (-1.65,1.275) -- (-0.65,1.275) -- (0.025,0.6) -- (0.125,0.6) -- (0.225,0.7) -- (0.225,0.8)
+            -- (-0.45,1.45) -- (-0.45,2.45) -- (-0.1,2.825) -- (0.7,2.825) -- (1.1,2.45) -- (1.1,1.275) -- (2.25,1.275) -- (2.65,0.9)
+            -- (2.65,0.1) -- (2.25,-0.3) -- (1.1,-0.3) -- (1.1,-1.45) -- (0.7,-1.85) -- (-0.1,-1.85) -- (-0.45,-1.45) -- (-0.45,-0.3)
+            -- (-1.65,-0.3) -- (-2,0.1) -- cycle;
+      \end{scope}
+    \end{scope}
+
+    % --------------------------------- ARROWS ---------------------------------
+    %\pic[color=black,rotate=80,scale=1.5] at (-11,-0.75) {arrow};
+    %\pic[color=black,rotate=200,scale=1.5,xscale=-1] at (-6.2,-9.75) {arrow};
+
+    % --------------------------------- TABLES ---------------------------------
+    \pic at (10,0) {queries};
+    \pic at (4,-5.4) {parameters};
+    \pic at (21.5,-2.1) {categories};
+    \pic at (30,-6) {objects};
+    \pic at (30,-21.2) {tiles};
+
+    \draw[rounded corners = 0.25cm, line width = 0.5mm, fill = black!10!white] (-15,-9.25) rectangle (10.5,-11.25);
+    \node at (-6.5,-9.75) {\large{\textbf{Query format: } https://dojo.nplusplus.ninja/prod/steam/ + \textbf{query} + ? + \textbf{parameters}}};
+    \node at (-7.8,-10.35) {\large{\textbf{Sample: } Retrieve the first page of results from "Newest" in Solo mode:}};
+    \node at (-2,-10.9) {\large{https://dojo.nplusplus.ninja/prod/steam/query\_levels?steam\_id=76561198041272062\&steam\_auth=\&qt=10\&mode=0\&page=0 }};
+
+    \begin{scope}[yshift=-2.25cm]
+      \pic at (4,-15.4) {query_format};
+      \pic at (4,-22.4) {note1};
+    \end{scope}
+
+    \begin{scope}[xshift=0.65cm,yshift=-2.25cm]
+      \pic at (10.5,-14.65) {map_format};
+      \pic at (10.5,-21.65) {note2};
+    \end{scope}
+
+    \begin{scope}[xshift=1.5cm,yshift=-2.25cm]
+      \pic at (22.5,-16.15) {attract_format};
+    \end{scope}
+
+    \begin{scope}[xshift=1cm,yshift=-2.25cm]
+      \pic at (16.5,-15.4) {replay_format};
+      \pic at (16.5,-22.4) {note3};
+    \end{scope}
+
+    % --------------------------------- FOOTER ---------------------------------
+    \begin{scope}[yshift=-0.25cm]
+    \draw[rounded corners = 0.25cm, line width = 0.5mm, fill = black!10!white] (-15,-25.5) rectangle (10.5,-31);
+
+    \node[anchor=north west] at (-14.75,-25.75) {\large{\textbf{Final notes:}}};
+    \node[anchor=north west] at (-14.5,-25.75 - 1 * 0.50) {\large{$\bullet$ For object orientation, the value 0 indicates looking East, and then it rotates clockwise until Northeast (7).}};
+    \node[anchor=north west] at (-14.5,-25.75 - 2 * 0.50) {\large{$\bullet$ For each group of 4 tiles, the first one is the pictured one, and each successive one is obtained by rotating it clockwise}};
+    \node[anchor=north west] at (-14.5,-25.75 - 3 * 0.50) {\large{\hspace{1em}(for the first 4 groups), or by reflecting it horizontally and vertically (for the last 4 groups).}};
+    \node[anchor=north west] at (-14.75,-25.75 - 4 * 0.50) {\large{\textbf{Thanks:}}};
+    \node[anchor=north west] at (-14.5,-25.75 - 5 * 0.50) {\large{$\bullet$ Thanks to sidke and psenough for finding the required URLs for querying N++'s server.}};
+    \node[anchor=north west] at (-14.5,-25.75 - 6 * 0.50) {\large{$\bullet$ Thanks to ief015 and CoughSyrup for analyzing map data format, and Raif for analyzing attract and replay file formats.}};
+    \node[anchor=north west] at (-14.75,-25.75 - 7 * 0.50) {\large{\textbf{Community:}}};
+    \node[anchor=north west] at (-14.5,-25.75 - 8 * 0.50) {\large{$\bullet$ https://discord.gg/nplusplus}};
+    \node[anchor=north west] at (-14.5,-25.75 - 9 * 0.50) {\large{$\bullet$ https://forum.droni.es/}};
+
+    \node[anchor=north west] at (11,-25.625) {\includegraphics[scale=0.45]{ninja.png}};
+    \end{scope}
+
+  \end{tikzpicture}
+}
+
+\end{document}
