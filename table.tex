@@ -51,6 +51,7 @@
         \begin{tabla}{1}{cl}
           \tit{QUERIES}{2}\\
           \header{Name} & \header{Description} \\
+          \textbf{login} & Logs the user in his account (POST request)\\
           \textbf{get\_scores} & Returns leaderboard data for a specific level\\
           \textbf{get\_replay} & Returns replay data for a specific run\\
           \textbf{query\_levels} & Returns a list of userlevels from a specific tab and page\\
@@ -96,22 +97,17 @@
           \textbf{13} & Made by me, sorted by date\\
           \textbf{14} & Favourited, sorted by date\\
           \textbf{15} & Favourited, sorted by ++'s\\
-          \textbf{16} & ?\\
-          \textbf{17} & -\\
           \textbf{18} & Made by friends, sorted by date\\
           \textbf{19} & Made by friends, sorted by ++'s\\
-          \textbf{20} & -\\
           \textbf{21} & Favourited by friends\\
           \textbf{22} & Tracked by friends, sorted by date\\
           \textbf{24} & Tracked by friends, sorted by rank, scored\\
           \textbf{23} & Tracked by friends, sorted by rank\\
           \textbf{25} & Tracked by friends, sorted by rank, not scored\\
           \textbf{26} & Tracked by me\\
-          \textbf{27} & -\\
-          \textbf{28} & -\\
-          \textbf{29} & -\\
           \textbf{30} & Following, sorted by date\\
           \textbf{31} & Following, sorted by ++'s\\
+          \textbf{36} & Search\\
         \end{tabla}
       \end{minipage}
     };
@@ -206,6 +202,7 @@
         0 & Jump\\
         1 & Right\\
         2 & Left\\
+        3 & Suicide\\
         \end{tabla}
       \end{minipage}
     };
@@ -335,7 +332,7 @@
     \node at (0,0) {
       \begin{minipage}{\textwidth}
         \begin{tabla}{3}{c}
-        \note{5.1}{Frame sample: \\ $\bullet$ Input: right + jump. \\ $\bullet$ Value: $2^1$ + $2^0$ = 3.}\\
+        \note{5.1}{Example frame: \\ \hspace*{1em} right + jump = $2^1$ + $2^0$ = 3.}\\
         \end{tabla}
       \end{minipage}
     };
@@ -347,24 +344,30 @@
 \scalebox{1}{
   \begin{tikzpicture}
     % --------------------------------- FRAME ----------------------------------
-    \draw[rounded corners = 0.25cm, line width = 0.5mm] (-15.4,5.25) rectangle (14,-31.75);
+    \draw[rounded corners = 0.25cm, line width = 0.5mm] (-15.4,5.85) rectangle (14,-31.75);
 
-    \begin{scope}
-      \draw[rounded corners = 0.25cm, line width = 0.5mm, fill=black!10!white] (-15,1.5) rectangle (-9.4,-1.5);
+    \begin{scope}[yshift=0.5cm]
+      \draw[rounded corners = 0.25cm, line width = 0.5mm, fill=black!10!white] (-15,1.65) rectangle (-9.4,-1.85);
       \node[scale=1.25] at (-12.2,0.75) {{\color{1}\large{\textbf{Green: Query format}}}};
-      \node[scale=1.25] at (-12.6,0) {{\color{2}\large{\textbf{Blue: Data format}}}};
-      \node[scale=1.25] at (-13.4,-0.75) {{\color{3}\large{\textbf{Red: Notes}}}};
+      \node[scale=1.25] at (-12.6,-0.1) {{\color{2}\large{\textbf{Blue: Data format}}}};
+      \node[scale=1.25] at (-13.4,-0.95) {{\color{3}\large{\textbf{Red: Notes}}}};
     \end{scope}
 
     % -------------------------------- HEADER ----------------------------------
-    \begin{scope}[xshift=1.5cm,yshift=-2.5cm,scale=1.15]
+    \begin{scope}[xshift=1.5cm,yshift=-1.75cm,scale=1.15]
       % --- BOX ---
-      \draw[rounded corners = 0.25cm, line width = 0.5mm, fill=black!10!white] (-14.325,6.25) rectangle (0.45,3.75);
+      \draw[rounded corners = 0.25cm, line width = 0.5mm, fill=black!10!white] (-14.325,6.25) rectangle (7.80,3.75);
 
       % --- TEXT ---
-      \node[scale=1.1,xshift=-1.9cm,yshift=-0.1cm] at (-2,5.5) {\Huge{\textbf{Query \& Data format}}};
-      \node at (-0.9,4.35) {\large{\textbf{Author: Eddy}}};
-      \node at (-1,4) {\large{\textbf{Date: Feb/2020}}};
+      \begin{scope}[xshift=7.25cm]
+	      \node[scale=1.1,xshift=-1.9cm,yshift=-0.1cm] at (-2,5.5) {\Huge{\textbf{Query \& Data format}}};
+	      \node[anchor=south east] at (-1.30, 4.50) {\large{\textbf{Author:}}};
+	      \node[anchor=south west] at (-1.30, 4.42) {\large{\textbf{Eddy}}};
+	      \node[anchor=south east] at (-1.30, 4.15) {\large{\textbf{Created:}}};
+	      \node[anchor=south west] at (-1.30, 4.15) {\large{\textbf{Feb/2020}}};
+	      \node[anchor=south east] at (-1.30, 3.70) {\large{\textbf{Updated:}}};
+	      \node[anchor=south west] at (-1.30, 3.70) {\large{\textbf{Jan/2023}}};
+      \end{scope}
 
       % --- LOGO ---
       \begin{scope}[shift={(-11.25,5)},scale=0.4]
@@ -387,10 +390,10 @@
     \end{scope}
 
     % --------------------------------- TABLES ---------------------------------
-    \pic at (10,0) {queries};
+    \pic at (10,0.4) {queries};
     \pic at (4,-5.4) {parameters};
-    \pic at (21.5,-2.1) {categories};
-    \pic at (30,-6) {objects};
+    \pic at (21.5,-3.4) {categories};
+    \pic at (30,-5.2) {objects};
     \pic at (30,-21.2) {tiles};
 
     \draw[rounded corners = 0.25cm, line width = 0.5mm, fill = black!10!white] (-15,-9.25) rectangle (10.5,-11.25);
@@ -410,7 +413,7 @@
 
     \begin{scope}[xshift=1cm,yshift=-2.25cm]
       \pic[anchor=north west] at (-2.6,-9.25) {replay_format};
-      \pic at (16.5,-22.4) {note3};
+      \pic[anchor=north west] at (-2.6,-22.05) {note3};
     \end{scope}
 
     \begin{scope}[xshift=1.5cm,yshift=-2.25cm]
@@ -435,7 +438,7 @@
     \node[anchor=north west] at (11,-25.625) {\includegraphics[scale=0.45]{ninja.png}};
     \end{scope}
 
-    \node[anchor=north west] at (4.25,-31.25) {Eddy, 20-Feb-2020, https://github.com/edelkas/NPP\_sheet};
+    \node[anchor=north west] at (4.25,-31.25) {Eddy, 05-Jan-2023, https://github.com/edelkas/NPP\_sheet};
 
   \end{tikzpicture}
 }
