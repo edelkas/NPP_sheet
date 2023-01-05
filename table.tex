@@ -69,12 +69,12 @@
           \textbf{app\_id} & No & ? & Integer & None\\
           \textbf{steam\_id} & Yes & Steam64ID of an active N++ player & 17-digit integer & None\\
           \textbf{steam\_auth} & Yes & Steam token, can be left empty & Base 16 integer & None\\
-          \textbf{user\_id} & No & ID of the player in N++'s server & Integer (0$\sim$160K currently ) & None\\
-          \textbf{level\_id} & get\_scores & Self-explanatory & Integer (0$\sim$100K currently) & None\\
-          \textbf{replay\_id} & get\_replay & Self-explanatory & Integer (0$\sim$3M currently) & None\\
+          \textbf{user\_id} & No & ID of the player in N++'s server & Integer (0$\sim$400K currently ) & None\\
+          \textbf{level\_id} & get\_scores & Self-explanatory & Integer (0$\sim$120K currently) & None\\
+          \textbf{replay\_id} & get\_replay & Self-explanatory & Integer (0$\sim$5M currently) & None\\
           \textbf{player\_id} & No & ? & Integer & None\\
           \textbf{qt} & No & On \textit{get\_scores}, leaderboard tab & 0 (global), 1 (around), 2 (friends) & 0\\
-          && On \textit{query\_levels}, map tab & Integer, 7 to 31 (see below) & 0\\
+          && On \textit{query\_levels}, map tab & Integer, 7 to 36 (see right) & 0\\
           \textbf{mode} & search & Playing mode & 0 (solo), 1 (coop), 2 (race) & 0\\
           \textbf{page} & No & Page of results from query\_levels & Integer (0$\sim$100) & 0\\
           \textbf{search} & search & Text query to search & String of text & None\\
@@ -138,7 +138,7 @@
         \tit{MAP DATA BLOCKS}{2}\\
         \header{\# Bytes} & \header{Description}\\
         04 & Size of block in bytes\\
-        02 & ?\\
+        02 & Object count\\
         \#\# & z-lib compressed map data\\
         \end{tabla}
       \end{minipage}
