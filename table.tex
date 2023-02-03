@@ -122,11 +122,11 @@
         16 & Date of db update\\
         04 & Nº of maps\\
         04 & Page\\
-        04 & ? (0)\\
-        04 & Category\\
-        04 & Game mode\\
-        04 & ? (1200, 5)\\
-        04 & ? (500, 25)\\
+        04 & Type (0)\\
+        04 & Category (7-36)\\
+        04 & Game mode (0-2)\\
+        04 & Cache duration (1200, 5)\\
+        04 & Max page size (500, 25)\\
         04 & ? (0, 5)\\
         \tit{MAP HEADERS (44 bytes)}{2}\\
         \header{\# Bytes} & \header{Description}\\
@@ -366,7 +366,7 @@
 	      \node[anchor=south east] at (-1.30, 4.15) {\large{\textbf{Created:}}};
 	      \node[anchor=south west] at (-1.30, 4.15) {\large{\textbf{Feb/2020}}};
 	      \node[anchor=south east] at (-1.30, 3.70) {\large{\textbf{Updated:}}};
-	      \node[anchor=south west] at (-1.30, 3.70) {\large{\textbf{Jan/2023}}};
+	      \node[anchor=south west] at (-1.30, 3.78) {\large{\textbf{Feb/2023}}};
       \end{scope}
 
       % --- LOGO ---
@@ -438,7 +438,7 @@
     \node[anchor=north west] at (11,-25.625) {\includegraphics[scale=0.45]{ninja.png}};
     \end{scope}
 
-    \node[anchor=north west] at (4.25,-31.25) {Eddy, 05-Jan-2023, https://github.com/edelkas/NPP\_sheet};
+    \node[anchor=north west] at (4.25,-31.25) {Eddy, 03-Feb-2023, https://github.com/edelkas/NPP\_sheet};
 
   \end{tikzpicture}
 }
